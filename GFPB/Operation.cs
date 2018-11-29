@@ -3,7 +3,7 @@
 public class Operation
 {
 
-    public void LengthControl(ulong[] a, ulong[] b)
+    public void LengthControl(ref ulong[] a, ref ulong[] b)
     {
         var requiredlenght = Math.Max(a.Length, b.Length);
         Array.Resize(ref a, requiredlenght);
@@ -11,9 +11,9 @@ public class Operation
     }
 
 
-    public int LongCmp(ulong[] z, ulong[] x)
+    public int LongCmp( ulong[] z, ulong[] x)
     {
-        LengthControl(z, x);
+        LengthControl(ref z,ref x);
         for (int i = z.Length - 1; i > -1; i--)
         {
             if (z[i] > x[i]) return 1;
@@ -22,6 +22,17 @@ public class Operation
         return 0;
     }
 
+    public ulong[] RemoveHighZeros(ulong[] c)
+    {
+        int i = c.Length - 1;
+        while(c[i] == 0)
+        {
+            i--;
+        }
+        ulong[] result = new ulong[i+1];
+        Array.Copy(c,result,i+1);
+        return result;
+    }
 
     public ulong[] ShiftBitsToHigh(ulong[] a, int shift_num)
 	{
@@ -48,14 +59,7 @@ public class Operation
             shift_num -= 63;
             surrogate = c;
         }
-
-        ulong[] result = new ulong[c.Length-1];
-        if (c[c.Length - 1] == 0)
-        {
-            Array.Copy(c, result, c.Length - 1);
-            return result;
-        }
-        else { return c;}
+        return RemoveHighZeros(c);
     }
 
     public ulong[] ShiftBitsToLow(ulong[] a, int shift_num)
@@ -86,7 +90,7 @@ public class Operation
 
     public ulong[] BitMul(ulong[] a, ulong[] b)
     {
-        LengthControl(a, b);
+        LengthControl(ref a, ref b);
         ulong[] result = new ulong[a.Length];
         for (int i = 0; i < a.Length; i++)
         {
@@ -98,7 +102,7 @@ public class Operation
 
     public ulong[] XOR(ulong[] a, ulong[] b)
     {
-        LengthControl(a,b);
+        LengthControl(ref a, ref b);
         ulong[] result = new ulong[a.Length];
         for(int i = 0; i < a.Length; i++)
         {
