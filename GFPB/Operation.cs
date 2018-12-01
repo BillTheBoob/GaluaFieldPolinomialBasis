@@ -2,6 +2,8 @@
 
 public class Operation
 {
+    ulong[] zero = new ulong[1];
+    public ulong[] one = new ulong[] { 1 };
 
     public void LengthControl(ref ulong[] a, ref ulong[] b)
     {
@@ -11,9 +13,9 @@ public class Operation
     }
 
 
-    public int LongCmp( ulong[] z, ulong[] x)
+    public int LongCmp(ulong[] z, ulong[] x)
     {
-        LengthControl(ref z,ref x);
+        LengthControl(ref z, ref x);
         for (int i = z.Length - 1; i > -1; i--)
         {
             if (z[i] > x[i]) return 1;
@@ -25,17 +27,17 @@ public class Operation
     public ulong[] RemoveHighZeros(ulong[] c)
     {
         int i = c.Length - 1;
-        while(c[i] == 0)
+        while (c[i] == 0)
         {
             i--;
         }
-        ulong[] result = new ulong[i+1];
-        Array.Copy(c,result,i+1);
+        ulong[] result = new ulong[i + 1];
+        Array.Copy(c, result, i + 1);
         return result;
     }
 
     public ulong[] ShiftBitsToHigh(ulong[] a, int shift_num)
-	{
+    {
         if (shift_num == 0) return a;
         ulong[] c = new ulong[a.Length];
         ulong[] surrogate = new ulong[a.Length];
@@ -44,12 +46,12 @@ public class Operation
 
         while (shift_num > 0)
         {
-            c = new ulong[surrogate.Length+1];
+            c = new ulong[surrogate.Length + 1];
             var carriedBits = 0UL;
             if (shift_num < 64) { shift = shift_num; }
             else { shift = 63; }
             int i = 0;
-            for (; i < surrogate.Length ; i++)
+            for (; i < surrogate.Length; i++)
             {
                 var temp = surrogate[i];
                 c[i] = (temp << shift) | carriedBits;
@@ -99,53 +101,61 @@ public class Operation
         return result;
     }
 
+    public ulong[] NOT(ulong[] a)
+    {
+        for (int i = 0; i < a.Length; i++)
+        {
+            a[i] ^= 0xFFFFFFFFFFFFFFFF;
+        }
+        return a;
+    }
+
 
     public ulong[] XOR(ulong[] a, ulong[] b)
     {
         LengthControl(ref a, ref b);
         ulong[] result = new ulong[a.Length];
-        for(int i = 0; i < a.Length; i++)
+        for (int i = 0; i < a.Length; i++)
         {
             result[i] = a[i] ^ b[i];
         }
         return result;
     }
 
+
+
+
+
     public ulong[] MultiplicationModTwo(int m, ulong[] module, ulong[] a, ulong[] b)
     {
-        ulong[] product = new ulong[Math.Max(a.Length, b.Length) << 1];
-        ulong[] one = new ulong[1];
-        one[0] = 1;
-        ulong[] zero = new ulong[1];
-
-        for (int k = 0; k < m; k++)
+        ulong[] prod = zero;
+        int k = 0;
+        /*multiply phase*/
+        for (k = 0; k < m; k++)
         {
             if ((a[0] & 1) == 1)
             {
-                product = XOR(product, ShiftBitsToHigh(b, k));
+                prod = XOR(prod, ShiftBitsToHigh(b, k));
             }
-
-
             a = ShiftBitsToLow(a, 1);
             if (LongCmp(a, zero) == 0)
             {
                 break;
             }
         }
+        /*reduce phase*/
 
-        ulong[] mask = ShiftBitsToHigh(one,m);
+        ulong[] mask = ShiftBitsToHigh(one, m);
         mask = ShiftBitsToHigh(mask, m - 2);
-
-        for(int j = m-2; j >= 0; j--)
+        for (k = m - 2; k >= 0; k--)
         {
-            if(LongCmp(BitMul(product, mask), zero) != 0)
+            if (LongCmp(BitMul(prod, mask), zero) > 0)
             {
-                product = BitMul(product, mask);
-                product = XOR(product, ShiftBitsToHigh(module, j));
+                prod = BitMul(NOT(mask), prod);
+                prod = XOR(prod, ShiftBitsToHigh(module, k));
             }
             mask = ShiftBitsToLow(mask, 1);
         }
-        return product;
+        return prod;
     }
-
 }

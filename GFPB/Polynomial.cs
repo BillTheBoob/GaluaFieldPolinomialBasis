@@ -29,6 +29,8 @@ public class Polynomial
         return result;
     }
 
+
+
     public Polynomial(int m, int deg2, int deg3, int deg4, int deg5)
     {
         ulong[] poly1 = operation.ShiftBitsToHigh(one, m);
@@ -40,10 +42,14 @@ public class Polynomial
         array = GeneratorPackage(poly1, poly2, poly3, poly4, poly5);
     }
 
+
+
     public Polynomial(int m)
     {
         array = new ulong[ArrayLength(m)];
     }
+
+
 
     public override string ToString()
     {
