@@ -103,16 +103,23 @@ public class Operation
 
     public ulong[] NOT(ulong[] a)
     {
+        ulong[] result = new ulong[a.Length];
+        Array.Copy(a, result, a.Length);
         for (int i = 0; i < a.Length; i++)
         {
-            a[i] ^= 0xFFFFFFFFFFFFFFFF;
+            result[i] ^= 0xFFFFFFFFFFFFFFFF;
         }
-        return a;
+        return result;
     }
 
 
-    public ulong[] XOR(ulong[] a, ulong[] b)
+    public ulong[] XOR(ulong[] x, ulong[] y)
     {
+        ulong[] a = new ulong[x.Length];
+        ulong[] b = new ulong[y.Length];
+        Array.Copy(x, a, x.Length);
+        Array.Copy(y, b, y.Length);
+
         LengthControl(ref a, ref b);
         ulong[] result = new ulong[a.Length];
         for (int i = 0; i < a.Length; i++)
@@ -123,10 +130,14 @@ public class Operation
     }
 
 
+    /*public ulong[] UnitsToEnd(int m)
+    {
+        var temp = ShiftBitsToHigh(one, m);
 
+    }
+    */
 
-
-    public ulong[] MultiplicationModTwo(int m, ulong[] module, ulong[] a, ulong[] b)
+    public ulong[] MultiplicationModIrreducible(int m, ulong[] module, ulong[] a, ulong[] b)
     {
         ulong[] prod = zero;
         int k = 0;
@@ -156,6 +167,6 @@ public class Operation
             }
             mask = ShiftBitsToLow(mask, 1);
         }
-        return prod;
+        return prod;//BitMul(prod, UnitsToEnd(m));
     }
 }

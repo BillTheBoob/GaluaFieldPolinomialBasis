@@ -22,7 +22,7 @@ namespace GFPB
             Assert.AreEqual(expected, polynomial.ToString());
         }
 
-
+        /*
         [Test]
         [Description("Verifies that using XOR function we can find zero constant.")]
         [TestCase(293, 11, 6, 1, 0)]
@@ -37,6 +37,20 @@ namespace GFPB
             result.array = operation.XOR(polynomial.array, polynomial.array);
             ulong[] zero = new ulong[1];
             Assert.AreEqual(0, operation.LongCmp(result.array, zero));
+        }
+        */
+
+
+        [Test]
+        [Description("Verifies that NOT function does not modify the argument passed.")]
+        [TestCase(293ul, 4ul, 34ul, 234ul)]
+        public void ImmutabilityNOTTest(ulong a, ulong b, ulong c, ulong d)
+        {
+            Operation operation = new Operation();
+            ulong[] arr = new ulong[4] {a, b, c, d };
+            ulong[] test_arr = new ulong[4] {a, b, c, d};
+            var result = operation.NOT(test_arr);
+            CollectionAssert.AreEqual(arr, test_arr);
         }
     }
 }
