@@ -72,6 +72,6 @@ public class Polynomial
             result += bit.ToString();
         }
         var q = new string(result.ToCharArray().Reverse().ToArray());
-        return q;
+        return q.TrimStart('0');
     }
 }

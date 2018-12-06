@@ -22,14 +22,14 @@ namespace GFPB
             Assert.AreEqual(expected, polynomial.ToString());
         }
 
-        /*
+        
         [Test]
-        [Description("Verifies that using XOR function we can find zero constant.")]
+        [Description("Verifies that constant '0' exist in current field.")]
         [TestCase(293, 11, 6, 1, 0)]
         [TestCase(163, 7, 6, 3, 0)]
         [TestCase(409, 15, 6, 1, 0)]
         [TestCase(571, 10, 5, 2, 0)]
-        public void XORTest(int m, int deg2, int deg3, int deg4, int deg5)
+        public void FindZeroTest(int m, int deg2, int deg3, int deg4, int deg5)
         {
             Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
             Polynomial result = new Polynomial(m);
@@ -38,8 +38,7 @@ namespace GFPB
             ulong[] zero = new ulong[1];
             Assert.AreEqual(0, operation.LongCmp(result.array, zero));
         }
-        */
-
+        
 
         [Test]
         [Description("Verifies that NOT function does not modify the argument passed.")]
@@ -51,6 +50,81 @@ namespace GFPB
             ulong[] test_arr = new ulong[4] {a, b, c, d};
             var result = operation.NOT(test_arr);
             CollectionAssert.AreEqual(arr, test_arr);
+        }
+
+
+        [Test]
+        [Description("Verifies that constant '1' exist in current field.")]
+        [TestCase(163, 7, 6, 3, 0)]
+        [TestCase(409, 15, 6, 1, 0)]
+        [TestCase(293, 11, 6, 1, 0)]
+        [TestCase(571, 10, 5, 2, 0)]
+        public void FindOneTest(int m, int deg2, int deg3, int deg4, int deg5)
+        {
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            var result = operation.MultiplicationModIrreducible(m, polynomial.array, alpha_start, polynomial.one);
+            Assert.AreEqual(0 , operation.LongCmp(result, alpha_start));
+        }
+
+
+        [Test]
+        [Description("Verifies that XOR function works correctly.")]
+        [TestCase(163, 7, 6, 3, 0, "101011011")]
+        [TestCase(409, 15, 6, 1, 0, "11000000011000101")]
+        [TestCase(293, 11, 6, 1, 0, "1100011000101")]
+        [TestCase(571, 10, 5, 2, 0, "110001101111")]
+        public void XORTest(int m, int deg2, int deg3, int deg4, int deg5, string result)
+        {
+            ulong[] alpha = new ulong[] { 2 };
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            var alpha_next = operation.MultiplicationModIrreducible(m, polynomial.array, alpha_start, alpha);
+            polynomial.array = operation.XOR(alpha_start, alpha_next);
+            Assert.AreEqual(result, polynomial.ToString());
+        }
+
+
+        [Test]
+        [Description("Verifies that  MultiplicationModIrreducible function works correctly.")]
+        [TestCase(163, 7, 6, 3, 0, "110010010")]
+        [TestCase(409, 15, 6, 1, 0, "10000000010000110")]
+        [TestCase(293, 11, 6, 1, 0, "1000010000110")]
+        [TestCase(571, 10, 5, 2, 0, "100001001010")]
+        public void MultiplicationModIrreducibleTest(int m, int deg2, int deg3, int deg4, int deg5, string result)
+        {
+            ulong[] alpha = new ulong[] { 2 };
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            polynomial.array = operation.MultiplicationModIrreducible(m, polynomial.array, alpha_start, alpha);
+            Assert.AreEqual(result, polynomial.ToString());
+        }
+
+
+
+        [Test]
+        [TestCase(281, 9, 4, 1, 0)]
+        [TestCase(163, 7, 6, 3, 0)]
+        [TestCase(409, 15, 6, 1, 0)]
+        [TestCase(293, 11, 6, 1, 0)]
+        [TestCase(571, 10, 5, 2, 0)]
+        public void SquaringTest(int m, int deg2, int deg3, int deg4, int deg5)
+        {
+            ulong[] alpha = new ulong[] { 2 };
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+
+            ulong[] module = new ulong[polynomial.array.Length];
+            Array.Copy(polynomial.array, module, polynomial.array.Length);
+
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            polynomial.array = operation.MultiplicationModIrreducible(m, polynomial.array, alpha_start, alpha_start);
+
+            var result = operation.Squaring(alpha_start, module, m);
+            Assert.AreEqual(0, operation.LongCmp(result, polynomial.array));
         }
     }
 }
