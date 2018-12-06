@@ -110,7 +110,7 @@ public class Operation
         Array.Copy(a, result, a.Length);
         for (int i = 0; i < a.Length; i++)
         {
-           result[i] = (~result[i]) << 1;
+           result[i] = ~result[i];
         }
         return result;
     }
@@ -158,7 +158,7 @@ public class Operation
         {
             if (LongCmp(BitMul(prod, mask), zero) > 0)
             {
-                prod = BitMul(NOT(mask), prod);
+                prod = BitMul(NOT(ShiftBitsToHigh(mask,1)), prod);
                 prod = XOR(prod, ShiftBitsToHigh(module, k));
             }
             mask = ShiftBitsToLow(mask, 1);
