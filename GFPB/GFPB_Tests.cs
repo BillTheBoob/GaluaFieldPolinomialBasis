@@ -126,5 +126,93 @@ namespace GFPB
             var result = operation.Squaring(alpha_start, module, m);
             Assert.AreEqual(0, operation.LongCmp(result, polynomial.array));
         }
-    }
+
+
+        [Test]
+        [TestCase(281, 9, 4, 1, 0, 1ul)]
+        [TestCase(163, 7, 6, 3, 0, 1ul)]
+        [TestCase(409, 15, 6, 1, 0, 1ul)]
+        [TestCase(293, 11, 6, 1, 0, 1ul)]
+        [TestCase(571, 10, 5, 2, 0, 1ul)]
+        public void TraceTest(int m, int deg2, int deg3, int deg4, int deg5, ulong expected)
+        {
+            ulong[] alpha = new ulong[] { 2 };
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+
+            ulong[] module = new ulong[polynomial.array.Length];
+            Array.Copy(polynomial.array, module, polynomial.array.Length);
+
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            var result = operation.Trace(alpha_start, module, m);
+            
+            Assert.AreEqual(expected, result[0]);
+        }
+
+
+        [Test]
+        [TestCase(281, 9, 4, 1, 0)]
+        [TestCase(163, 7, 6, 3, 0)]
+        [TestCase(409, 15, 6, 1, 0)]
+        [TestCase(293, 11, 6, 1, 0)]
+        [TestCase(571, 10, 5, 2, 0)]
+        public void LongModPowerTest(int m, int deg2, int deg3, int deg4, int deg5)
+        {
+            ulong[] one = new ulong[] { 1 };
+            ulong[] alpha = new ulong[] { 2 };
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            var power = operation.LongSub(operation.ShiftBitsToHigh(one, m), one);
+            var result = operation.LongModPowerBarrett(alpha, power, polynomial.array, m);
+            Assert.AreEqual(0, operation.LongCmp(one, result));
+        }
+
+
+        [Test]
+        [TestCase(281, 9, 4, 1, 0)]
+        [TestCase(163, 7, 6, 3, 0)]
+        [TestCase(409, 15, 6, 1, 0)]
+        [TestCase(293, 11, 6, 1, 0)]
+        [TestCase(571, 10, 5, 2, 0)]
+        public void  InversedElementTest(int m, int deg2, int deg3, int deg4, int deg5)
+        {
+            ulong[] one = new ulong[] { 1 };
+            ulong[] two = new ulong[] { 2 };
+ 
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            var power = operation.LongSub(operation.ShiftBitsToHigh(one, m), two);
+            var alpha_start = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            var inverse = operation.LongModPowerBarrett(alpha_start, power, polynomial.array, m);
+
+            var result = operation.MultiplicationModIrreducible(m, polynomial.array, alpha_start, inverse);
+
+            Assert.AreEqual(0, operation.LongCmp(one, result));
+        }
+
+
+        [Test]
+        [TestCase(281, 9, 4, 1, 0)]
+        [TestCase(163, 7, 6, 3, 0)]
+        [TestCase(409, 15, 6, 1, 0)]
+        [TestCase(293, 11, 6, 1, 0)]
+        [TestCase(571, 10, 5, 2, 0)]
+        public void LinearTest(int m, int deg2, int deg3, int deg4, int deg5)
+        {
+            ulong[] one = new ulong[] { 1 };
+            ulong[] two = new ulong[] { 2 };
+
+            Operation operation = new Operation();
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+
+            var a = new ulong[] { 77 };
+            var b = new ulong[] { 2 };
+            var c = new ulong[] { 43 };
+
+            var result1 = operation.MultiplicationModIrreducible(m, polynomial.array, operation.XOR(a, b), c);
+            var result2 = operation.XOR(operation.MultiplicationModIrreducible(m, polynomial.array, a, c), operation.MultiplicationModIrreducible(m, polynomial.array, b, c));
+
+            Assert.AreEqual(0, operation.LongCmp(result1, result2));
+        }
+    }    
 }

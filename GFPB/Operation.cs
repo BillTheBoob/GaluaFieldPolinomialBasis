@@ -27,6 +27,7 @@ public class Operation
 
     public ulong[] RemoveHighZeros(ulong[] c)
     {
+        if (LongCmp(c, zero) == 0) { return zero; }
         int i = c.Length - 1;
         while (c[i] == 0)
         {
@@ -35,6 +36,25 @@ public class Operation
         ulong[] result = new ulong[i + 1];
         Array.Copy(c, result, i + 1);
         return result;
+    }
+
+    public ulong[] LongSub(ulong[] a, ulong[] b)
+    {
+        ulong[] z = new ulong[a.Length];
+        ulong[] x = new ulong[b.Length];
+        Array.Copy(a, z, a.Length);
+        Array.Copy(b, x, b.Length);
+
+        LengthControl(ref z, ref x);
+        ulong[] c = new ulong[z.Length];
+        if (LongCmp(z, x) == 0) { return c; }
+        var borrow = 0UL;
+        for (int i = 0; i < c.Length; i++)
+        {
+            c[i] = z[i] - x[i] - borrow;
+            borrow = c[i] > z[i] ? 1UL : 0UL;
+        }
+        return c;
     }
 
 
@@ -261,8 +281,6 @@ public class Operation
     }
 
      
-
-
     public ulong[] Trace(ulong[] a, ulong[] module , int m)
     {
         ulong[] result = new ulong[1];
@@ -274,4 +292,47 @@ public class Operation
         return result;
     }
 
+
+
+    public void MultiplyAndTakeModule(ref ulong word, ref ulong[] result, ref ulong[] a, ref ulong[] module, int m)
+    {
+        ulong bit = word & 1;
+        if (bit == 1)
+        {
+            result = MultiplicationModIrreducible(m, module, result, a);  
+        }
+        a = Squaring(a, module, m);
+    }
+
+
+
+
+    public ulong[] LongModPowerBarrett(ulong[] x, ulong[] y, ulong[] module, int m)
+    { 
+        ulong[] result = new ulong[] { 1 };
+        ulong[] a = new ulong[x.Length];
+        ulong[] b = new ulong[y.Length];
+        Array.Copy(x, a, x.Length);
+        Array.Copy(y, b, y.Length);
+
+        ulong word;
+        for (int i = 0; i < b.Length - 1; i++)
+        {
+            word = b[i];
+            for (int j = 0; j != 64; j++, word >>= 1)
+            {
+                MultiplyAndTakeModule(ref word, ref result, ref a, ref module, m);
+            }
+        }
+
+        word = b[b.Length - 1];
+        for (; word != 0; word >>= 1)
+        {
+            MultiplyAndTakeModule(ref word, ref result, ref a, ref module, m);
+        }
+        return RemoveHighZeros(result);
+    }
+
 }
+
+

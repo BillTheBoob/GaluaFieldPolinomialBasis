@@ -10,23 +10,24 @@ namespace GFPB
     {
         static void Main(string[] args)
         {
+            var one = new ulong[] {1};
           Operation operation = new Operation();
-            var element = new ulong[] { 5 };
-            ulong[] module = new ulong[] { 13 };
-            // var res = operation.Trace(element, module, 3);
+            int m = 409;
+            int deg2 = 15;
+            int deg3 = 6;
+            int deg4 = 1;
+            int deg5 = 0;
 
-
-            var v1 = element;       //operation.Squaring(element, module, 3);
-            //var v11 =// operation.MultiplicationModIrreducible(3, module, element, element);
-
-            var v2 = operation.Squaring(v1, module, 3);
-          //  var v22 = operation.MultiplicationModIrreducible(3, module, v1, v1);
-            /*
-            var v3 = operation.Squaring(v2, module, 3);
-            var v33 = operation.MultiplicationModIrreducible(3, module, v2, v2);
-
-            var res = operation.XOR(v1, v2);
-            res = operation.XOR(res, v3);*/
+            ulong[] alpha = new ulong[] { 2 };
+            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
+            
+            ulong[] module = new ulong[polynomial.array.Length];
+            Array.Copy(polynomial.array, module, polynomial.array.Length);
+            var power = operation.ShiftBitsToHigh(one, 409);
+            var alpha_start = new ulong[] { 2};//operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
+            var result = operation.LongModPowerBarrett(alpha, power, module, m);
+            
+           
         }
     }
 }    
