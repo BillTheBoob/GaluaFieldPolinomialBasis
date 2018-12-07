@@ -8,26 +8,41 @@ namespace GFPB
 {
     class Program
     {
+        static DateTime centuryBegin = new DateTime();
+        static Operation operation = new Operation();
+
+        public static ulong[] sum(int m, ulong[] module, ulong[] a, ulong[] b, ref long TickSum)
+        {
+            centuryBegin = DateTime.Now;
+            var res = operation.MultiplicationModIrreducible(m, module, a, b);
+            DateTime currentDate = DateTime.Now;
+            TickSum += currentDate.Ticks - centuryBegin.Ticks;
+            return res;
+        }
+
+
         static void Main(string[] args)
         {
-            var one = new ulong[] {1};
-          Operation operation = new Operation();
-            int m = 409;
-            int deg2 = 15;
-            int deg3 = 6;
-            int deg4 = 1;
-            int deg5 = 0;
+          Polynomial polynomial = new Polynomial(409, 15, 6, 1, 0); 
+          var generator = operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, 409));
+            var alpha = new ulong[] { 2 };
+            ulong[][] Tumen = new ulong[10000][];
 
-            ulong[] alpha = new ulong[] { 2 };
-            Polynomial polynomial = new Polynomial(m, deg2, deg3, deg4, deg5);
-            
-            ulong[] module = new ulong[polynomial.array.Length];
-            Array.Copy(polynomial.array, module, polynomial.array.Length);
-            var power = operation.ShiftBitsToHigh(one, 409);
-            var alpha_start = new ulong[] { 2};//operation.XOR(polynomial.array, operation.ShiftBitsToHigh(polynomial.one, m));
-            var result = operation.LongModPowerBarrett(alpha, power, module, m);
-            
+            for (int i = 0; i < 10000; i++)
+            {
+                Tumen[i] = operation.MultiplicationModIrreducible(409, polynomial.array, generator, alpha);
+            }
+
+            ulong[][] Result = new ulong[10000][];
+            long elapsedTicks = 0;
+            for (int i = 0; i < 10000; i++)
+            {
+                Result[i] = sum(409, polynomial.array, Tumen[i], Tumen[i], ref elapsedTicks);
+            }
            
+
+            
+            Console.WriteLine(elapsedTicks/10000);// операций на одно умножение
         }
     }
 }    
