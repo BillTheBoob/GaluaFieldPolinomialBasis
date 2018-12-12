@@ -1,0 +1,33 @@
+language: csharp
+
+
+
+script:
+
+
+
+  - xbuild /p:Configuration=Debug GFPB.sln
+
+
+
+before_install:
+
+
+
+  - sudo apt-get install nunit-console
+
+
+
+before_script:
+
+
+
+  - nuget restore GFPB.sln
+
+
+
+after_script:
+
+
+
+  - nunit-console GFPB/bin/Debug/GFPB.exe
